@@ -4,6 +4,7 @@ import queue
 import threading
 import requests
 import meshtastic.serial_interface
+import meshtastic.tcp_interface
 from pubsub import pub
 
 
@@ -14,21 +15,25 @@ from pubsub import pub
 # Если авто-поиск Meshtastic-ноды не сработает, укажи COM-порт явно:
 # пример: MESHTASTIC_PORT = "COM4"
 MESHTASTIC_PORT = None
+MESHTASTIC_IP = "192.168.53.20"
 
 # Твоя модель из ollama list:
-MODEL = "huihui_ai/qwen3.5-abliterated:35b"
+MODEL = "huihui_ai/qwen3.5-abliterated:0.8b"
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
 
 # Бот будет отвечать только на сообщения, начинающиеся с /ai
-TRIGGER = "/ai"
+# TRIGGER = "/ai"
+TRIGGER = "бот"
 
 # Лимит на одну часть ответа.
 # Кириллица занимает больше байт, поэтому не ставь слишком много.
-MAX_REPLY_BYTES = 170
+# Было 170
+MAX_REPLY_BYTES = 150
 
 # Пауза между частями ответа, чтобы не забивать LoRa-эфир
-SEND_DELAY_SECONDS = 2.0
+# было 2.0
+SEND_DELAY_SECONDS = 4.0
 
 # Если direct-ответы не доходят, поставь False - тогда ответы будут broadcast в канал.
 SEND_DIRECT_REPLY = True
@@ -310,6 +315,8 @@ def main():
 
     if MESHTASTIC_PORT:
         radio = meshtastic.serial_interface.SerialInterface(devPath=MESHTASTIC_PORT)
+    elif MESHTASTIC_IP:
+        radio = meshtastic.tcp_interface.TCPInterface(MESHTASTIC_IP)
     else:
         radio = meshtastic.serial_interface.SerialInterface()
 
